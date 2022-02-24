@@ -1,5 +1,5 @@
 from request import get_tweet
-from request import test
+from request import get_properties
 import sys
 import time
 import csv
@@ -22,7 +22,7 @@ class User:
         self.top_5_posts = get_tweet(uid)[0]
         self.top_5_retweet = get_tweet(uid)[1]
         
-        
+
 def append_to_csv(users, filename):
     csvFile = open(filename, "a", newline="", encoding='utf-8')
     csvWriter = csv.writer(csvFile)
@@ -59,7 +59,7 @@ usernames = toR.rstrip(toR[-1])
 
 
 
-properties = test(usernames)
+properties = get_properties(usernames)
 
 for user in properties['data']:
     if 'name' in user:

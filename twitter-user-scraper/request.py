@@ -35,29 +35,23 @@ def auth():
 def create_headers(bearer_token):
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
     return headers
-
+#
+# this function connect to the endpoint that you want to connected to
+#
 def connect_to_endpoint(url, headers, params, method="GET", next_token=None):
     params['pagination_token'] = next_token
-    # try:
     response = requests.request(method, url, headers=headers, params=params, timeout=10)
-    # except requests.exceptions.Timeout as e:
-    #     print(e)
     print("Endpoint Response Code: " + str(response.status_code))
     if response.status_code != 200:
         raise Exception(response.status_code, response.text)
     return response.json()
 
-def parse_json(response):
-    rtn = []
-    for user in response['data']:
-        id = user['id']
-        # follwers = user['followers_count']
-        rtn.append(id)
-    return rtn
+#
+# this function get all the properties of a twitter by passing in the username of a user
+#
 
-def test(usernames):
+def get_properties(usernames):
     user_url = "https://api.twitter.com/2/users/by"
-    # usernames = parse_input()
     params = {'usernames':usernames,
              'user.fields':'public_metrics,id'}
     headers = create_headers(auth())
@@ -65,13 +59,14 @@ def test(usernames):
     response = connect_to_endpoint(user_url,headers,params)
     return response
 
+#
+# this function return the information of top 5 most retweet post of a user and top 5 most-retweeted posts that the user retweets.
+#
 
 def get_tweet(input):
     tweet = []
     retweet = []
     url = "https://api.twitter.com/2/users/%s/tweets" % input
-    # params = {'tweet.fields':'public_metrics',
-    #           'max_results':'5'}
 
     headers = create_headers(auth())
     next_token = None 
@@ -81,10 +76,7 @@ def get_tweet(input):
     while flag:
         params = {'tweet.fields':'public_metrics,entities',
               'max_results':'100'}
-            #   'pagination_token':next_token
         response = connect_to_endpoint(url, headers, params, next_token=next_token)
-        
-        # print(response)
         result_count = response['meta']['result_count']
         if result_count != 0:
             for i in response['data']:
@@ -113,20 +105,3 @@ def get_tweet(input):
         if max_result > 3000:
             break
     return [tweet, retweet,d]
-
-
-
-
-def parse_input():
-    infile = sys.argv[1]
-    with open(infile, 'r') as i:
-        lines = i.readlines()
-    rtn = []
-    for i in lines:
-        rtn.append(i.strip())
-    toR = ""
-    for j in rtn:
-        toR += (j + ',')
-    toR = toR.rstrip(toR[-1])
-    return(toR)
-
